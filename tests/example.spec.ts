@@ -10,13 +10,35 @@ test('home screen', async ({ page }) => {
   await expect(page.getByRole('link',{name:/Log in/})).toBeVisible()
   await expect(page.getByRole('link',{name:/Sign up/})).toBeVisible()
   await page.waitForSelector("//div[@class='card h-100']")
-  let count=0
-  while(await page.locator("//button[text()='Next']").isVisible()){
-    const productcount=await page.locator("//div[@class='card h-100']").count()
-    count=count+productcount
-    await page.locator("//button[text()='Next']").click({force:true})
-    await page.waitForSelector("//div[@class='card h-100']")
-  }
-  count = count + await page.locator("//div[@class='card h-100']").count()
-  console.log(count)
+  let count = 0;
+let allproductname: string[] = [];
+
+while (await page.locator("//button[text()='Next']").isVisible()) {
+
+    const productcount = await page.locator("//div[@class='card h-100']").count();
+
+    const productnames = await page.locator("[class='card-title']").allTextContents();
+
+    allproductname.push(...productnames);
+
+    count = count + productcount;
+
+    await page.locator("//button[text()='Next']").click({ force: true });
+
+    await page.waitForTimeout(1500);
+}
+
+// Last page
+const productcount = await page.locator("//div[@class='card h-100']").count();
+
+const productnames = await page.locator("[class='card-title']").allTextContents();
+
+allproductname.push(...productnames);
+
+count = count + productcount;
+
+console.log("Total count:", count);
+console.log("All product names:", allproductname);
+
 });
+
