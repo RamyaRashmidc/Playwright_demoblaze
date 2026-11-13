@@ -25,6 +25,13 @@ export class DemoBlazeHomePage{
        this.productcards=page.locator("//div[@class='card h-100']")
        this.nextbtn=page.locator("//button[text()='Next']")
        this.productcardtitle=page.locator("[class='card-title']")
+       
+    }
+    productlink(productname:string):Locator{
+        return this.page.locator(`//a[text()='${productname}']`)
+    }
+    productprice(productname:string):Locator{
+        return this.page.locator(`//a[text()='${productname}']//ancestor::div[@class='card-block']//h5`)
     }
     async homepageValidation(){
         await expect(this.productstore).toBeVisible()
@@ -67,6 +74,14 @@ export class DemoBlazeHomePage{
     console.log("Total count:", count);
     console.log("All product names:", allproductname);
 
+    }
+    async navigatetoproductpage(productname:string){
+        await this.home.click()
+        await this.productlink(productname).waitFor({state:"visible"});
+        const prodprice=await this.productprice(productname).allTextContents()
+        console.log(prodprice)
+        await this.productlink(productname).click()
+        
     }
     }
 
