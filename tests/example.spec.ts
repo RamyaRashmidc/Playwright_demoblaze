@@ -10,7 +10,7 @@ let confirmationpage:ConfirmationPage
 
 test.beforeEach('Navigate to url', async ({ page }) => {
   await page.goto('https://www.demoblaze.com/');
-  demoBalzeHomePage=new DemoBlazeHomePage(page)
+  demoBalzeHomePage=new DemoBlazeHomePage(page);
   productpage=new ProductPage(page)
   cartpage=new CartPage(page)
   confirmationpage=new ConfirmationPage(page)
