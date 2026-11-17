@@ -1,27 +1,65 @@
+
 name: Playwright Tests
+
 on:
   push:
-    branches: [master,ramya_main]
+    branches: [master, ramya_main]
   pull_request:
-    branches: [master,ramya_main]
+    branches: [master, ramya_main]
+
+permissions:
+  contents: read
+  checks: write
+
 jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
-    - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-    - name: Run Playwright tests
-      run: npx playwright test --project=chromium
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright Tests
+        id: test
+        run: npx playwright test --project=chromium
+        continue-on-error: true
+
+      - name: Publish JUnit Test Results
+        if: always()
+        uses: dorny/test-reporter@v2
+        with:
+          name: Playwright Test Results
+          path: test-results.xml
+          reporter: java-junit
+
+      - name: Upload Playwright Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results.xml
+          retention-days: 30
+
+      - name: Check Test Status
+        if: always()
+        run: |
+          if [ "${{ steps.test.outcome }}" = "failure" ]; then
+            echo "Playwright tests FAILED"
+            exit 1
+          else
+            echo "Playwright tests PASSED"
+          fi
